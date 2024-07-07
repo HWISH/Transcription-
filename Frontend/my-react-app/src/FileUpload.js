@@ -1,21 +1,25 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const FileUpload = ({ onFileUpload }) => {
-  const fileInputRef = useRef();
+function FileUpload({ onFileUpload }) {
+  const [file, setFile] = useState(null);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleUpload = () => {
     if (file) {
       onFileUpload(file);
     }
   };
 
   return (
-    <div>
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} />
-      <button onClick={() => fileInputRef.current.click()}>Upload File</button>
+    <div className="file-upload">
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleUpload}>Upload</button>
     </div>
   );
-};
+}
 
 export default FileUpload;

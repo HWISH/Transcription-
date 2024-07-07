@@ -1,72 +1,49 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { FaHome, FaBlog, FaPhone, FaInfoCircle, FaTachometerAlt } from 'react-icons/fa';
 import './App.css';
-import FileUpload from './FileUpload';
-import axios from 'axios';
+import Dashboard from './Dashboard';
+import Contact from './Contact';
+import About from './About';
+import Home from './Home';
+import Blog from './Blog'; // Import Blog component
 
 function App() {
-  const [transcription, setTranscription] = useState('');
-  const [feedback, setFeedback] = useState('');
-  const [submittedFeedback, setSubmittedFeedback] = useState(false);
-
-  const handleFileUpload = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      setTranscription(response.data.transcriptionText);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-
-  const handleFeedbackSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/feedback', {
-        id: transcription.id,
-        feedback,
-      });
-
-      setSubmittedFeedback(true);
-    } catch (error) {
-      console.error('Error submitting feedback:', error);
-    }
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Transcription Service</h1>
-        <FileUpload onFileUpload={handleFileUpload} />
-        {transcription && (
+    <Router>
+      <div className="App">
+        <div className="sidebar">
           <div>
-            <h2>Transcription</h2>
-            <p>{transcription}</p>
-            {!submittedFeedback && (
-              <form onSubmit={handleFeedbackSubmit}>
-                <label>
-                  Feedback:
-                  <input
-                    type="text"
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                  />
-                </label>
-                <button type="submit">Submit Feedback</button>
-              </form>
-            )}
-            {submittedFeedback && <p>Thank you for your feedback!</p>}
+            <h2>VoiceStream</h2>
+            <nav>
+              <ul>
+                <li><Link to="/"><FaTachometerAlt className="icon" />Dashboard</Link></li>
+                <li><Link to="/home"><FaHome className="icon" />Home</Link></li>
+                <li><Link to="/blog"><FaBlog className="icon" />Blog</Link></li>
+                <li><Link to="/contact"><FaPhone className="icon" />Contact Us</Link></li>
+                <li><Link to="/about"><FaInfoCircle className="icon" />About Us</Link></li>
+              </ul>
+            </nav>
           </div>
-        )}
-      </header>
-    </div>
+          <div className="bottom-section">
+            <p><Link to="/terms">Terms of Service</Link></p>
+            <p><Link to="/policy">Privacy Policy</Link></p>
+            <p>&copy; 2023 VoiceStream</p>
+          </div>
+        </div>
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/blog" element={<Blog />} /> {/* Add Blog route */}
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/terms" element={<div>Terms of Service Content</div>} />
+            <Route path="/policy" element={<div>Privacy Policy Content</div>} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
 

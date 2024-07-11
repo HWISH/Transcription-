@@ -126,7 +126,7 @@ body, html, #root {
 
 .blog-text {
   font-size: 16px;
-  color: #fff; /* Ensure text color is white */
+  color: #fff; 
 }
 
 .blog-list {
@@ -183,9 +183,7 @@ body, html, #root {
     opacity: 1;
   }
 }
-/* About Page Styling */
-/* About Page Styling */
-/* Dashboard Page Styling */
+
 .dashboard-container {
   padding: 20px;
   background: linear-gradient(to right, #004d00, #002600);
@@ -222,7 +220,7 @@ body, html, #root {
 }
 
 .upload-section, .feedback-section {
-  margin-bottom: 40px; /* Add space between sections */
+  margin-bottom: 40px; 
 }
 
 .section-title {

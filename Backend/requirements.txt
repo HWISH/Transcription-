@@ -20,7 +20,7 @@ importlib-metadata==4.13.0
 sentencepiece==0.1.97
 # humanfriendly==10.0
 # pyreadline3==3.4.1
-espnet_model_zoo.downloader
+espnet_model_zoo
 torch
 transformers
 datasets

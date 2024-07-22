@@ -2,7 +2,6 @@ import os
 from tqdm import tqdm
 from pydub import AudioSegment
 import scipy.io.wavfile as wavfile
-import io
 import soundfile
 from espnet_model_zoo.downloader import ModelDownloader
 from espnet2.bin.enh_inference import SeparateSpeech
@@ -11,10 +10,14 @@ import torch
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from datasets import load_dataset
 from flask import Flask, request, jsonify
+import csv
+from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-# Existing code for downloading and setting up models
+# Model and pipeline setup
 d = ModelDownloader()
 cfg = d.download_and_unpack("espnet/Wangyou_Zhang_chime4_enh_train_enh_conv_tasnet_raw")
 
@@ -54,7 +57,7 @@ pipe = pipeline(
     device=device,
 )
 
-# Define your functions
+# Define utility functions
 def resample_audio(input_path, output_path, target_sample_rate):
     audio = AudioSegment.from_file(input_path)
     if audio.channels > 1:
@@ -76,10 +79,12 @@ def speechbrain_vad(file_name):
 def stt_whisper(file_name, language):
     try:
         result = pipe(file_name, generate_kwargs={"language": language, "task": "transcribe"})
-    except:
+    except Exception as e:
+        print(f"Error during transcription: {e}")
         result = {"text" : "", "chunks" : []}
     return result
 
+# Routes
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -88,7 +93,7 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
     if file:
-        file_path = os.path.join("/tmp", file.filename)
+        file_path = os.path.join("Uploads", file.filename)
         file.save(file_path)
         
         # Process the file
@@ -100,5 +105,25 @@ def upload_file():
         
         return jsonify(transcription), 200
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    data = request.json
+    transcription_id = data.get('transcriptionId')
+    feedback = data.get('feedback')
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    csv_file = 'feedback.csv'
+    file_exists = os.path.isfile(csv_file)
+    
+    with open(csv_file, 'a', newline='') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(['Transcription ID', 'Feedback', 'Timestamp'])
+        writer.writerow([transcription_id, feedback, timestamp])
+    
+    return jsonify({"message": "Feedback submitted successfully"}), 200
+
+if __name__ == '__main__':
+    if not os.path.exists("Uploads"):
+        os.makedirs("Uploads")
+    app.run(port=5000)

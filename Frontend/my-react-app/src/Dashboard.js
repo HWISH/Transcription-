@@ -1,5 +1,6 @@
+// Frontend/my-react-app/src/Dashboard.js
 import React, { useState } from 'react';
-import './App.css'; // Ensure this path is correct
+import './App.css';
 
 const Dashboard = () => {
   const [dragActive, setDragActive] = useState(false);
